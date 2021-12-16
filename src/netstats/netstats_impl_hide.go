@@ -12,7 +12,7 @@ import (
 	"github.com/algo2/tp3/grafo"
 )
 
-var operacionesStr = "camino\ndiametro"
+var operacionesStr = "camino\ndiametro\nrango"
 
 type netstatsType struct {
 	grafo grafo.Grafo
@@ -41,7 +41,7 @@ func (netstats *netstatsType) crearGrafo(data [][]string) {
 		for i, dat := range comp {
 			graph.AgregarVertice(dat)
 			if i > 0 {
-				graph.AgregarArista(comp[0], comp[i], 0)
+				graph.AgregarArista(comp[0], comp[i], 1)
 			}
 		}
 	}
@@ -88,6 +88,10 @@ func (netstat *netstatsType) ejecutar(linea string) {
 		netstat.pageRank(arg)
 	case "diametro":
 		netstat.diametro()
+	case "rango":
+		args := strings.SplitN(input[1], ",", 2)
+		n, _ := strconv.Atoi(args[1])
+		netstat.rango(args[0], n)
 	}
 }
 
@@ -113,6 +117,10 @@ func (netstat *netstatsType) diametro() {
 	fmt.Println(salidaFormato1(diametro, costo))
 }
 
+func (netstat *netstatsType) rango(origen string, n int) {
+	resultado := biblioteca.Rango(&netstat.grafo, origen, n)
+	fmt.Println(resultado)
+}
 func salidaFormato1(solucion []interface{}, costo int) string {
 	var sb strings.Builder
 	for i, str := range solucion {

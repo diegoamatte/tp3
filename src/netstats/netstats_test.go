@@ -28,7 +28,7 @@ func TestNetstatDiametro(t *testing.T) {
     os.Stdin = tmpfile
 
 	net := Crear()
-	net.CargarArchivo("./wiki-reducido-5000.tsv")
+	net.CargarArchivo("../..//wiki-reducido-5000.tsv")
 	net.EscucharComandos()
 
 
