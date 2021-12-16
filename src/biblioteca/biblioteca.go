@@ -9,5 +9,8 @@ type Biblioteca interface {
 
 	PageRank(grafo *grafo.Grafo, n int)
 
-	Diametro(grafo *grafo.Grafo)([]interface{}, int)
+	Diametro(grafo *grafo.Grafo) ([]interface{}, int)
+
+	//Devuelve la cantidad de vertices que se encuentran a un rango n del origen
+	Rango(grafo *grafo.Grafo, origen interface{}, n int) int
 }
