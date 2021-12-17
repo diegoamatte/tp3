@@ -12,8 +12,6 @@ import (
 	"github.com/algo2/tp3/grafo"
 )
 
-var operacionesStr = "camino\ndiametro\nrango"
-
 type netstatsType struct {
 	grafo grafo.Grafo
 }
@@ -98,7 +96,8 @@ func (netstat *netstatsType) ejecutar(linea string) {
 }
 
 func listarOperaciones() {
-	fmt.Println(operacionesStr)
+	comandos := "camino\nmas_importantes\ndiametro\nrango\nnavegacion"
+	fmt.Println(comandos)
 }
 
 func (netstat *netstatsType) camino(origen string, destino string) {
@@ -111,7 +110,8 @@ func (netstat *netstatsType) camino(origen string, destino string) {
 }
 
 func (netstat *netstatsType) pageRank(n int) {
-	biblioteca.PageRank(&netstat.grafo, 20)
+	top := biblioteca.PageRank(&netstat.grafo, n)
+	fmt.Println(salidaFormato2(top, ", "))
 }
 
 func (netstat *netstatsType) diametro() {
@@ -125,24 +125,24 @@ func (netstat *netstatsType) rango(origen string, n int) {
 }
 
 func (netstat *netstatsType) navegacion(origen string) {
-	resultado:=biblioteca.Navegacion(&netstat.grafo, origen, 20)
-	fmt.Printf("%s\n", salidaFormato2(resultado))
+	resultado := biblioteca.Navegacion(&netstat.grafo, origen, 20)
+	fmt.Printf("%s\n", salidaFormato2(resultado, " -> "))
 
 }
 
 func salidaFormato1(solucion []interface{}, costo int) string {
 	var sb strings.Builder
-	sb.WriteString(salidaFormato2(solucion))
+	sb.WriteString(salidaFormato2(solucion, " -> "))
 	sb.WriteString(fmt.Sprintf("\nCosto: %d", costo))
 	return sb.String()
 }
 
-func salidaFormato2(solucion []interface{}) string {
+func salidaFormato2(solucion []interface{}, separador string) string {
 	var sb strings.Builder
 	for i, str := range solucion {
 		sb.WriteString(fmt.Sprintf("%s", str))
 		if i < len(solucion)-1 {
-			sb.WriteString(" -> ")
+			sb.WriteString(separador)
 		}
 	}
 	return sb.String()

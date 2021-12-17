@@ -5,19 +5,19 @@ import (
 	"time"
 )
 
-type vertice struct {
-	dato    interface{}
-	aristas map[interface{}]int
+type arista struct {
+	peso    int
+	destino interface{}
 }
 
 type grafoType struct {
-	vertices map[interface{}]vertice
+	vertices map[interface{}][]interface{}
 	dirigido bool
 }
 
 func Crear(dirigido bool) Grafo {
 	grafo := grafoType{}
-	grafo.vertices = make(map[interface{}]vertice)
+	grafo.vertices = make(map[interface{}][]interface{})
 	grafo.dirigido = dirigido
 	return &grafo
 }
@@ -27,10 +27,7 @@ func (grafo *grafoType) AgregarVertice(v interface{}) {
 	if ok {
 		return
 	}
-	nuevo_vertice := vertice{}
-	nuevo_vertice.dato = v
-	nuevo_vertice.aristas = make(map[interface{}]int)
-	grafo.vertices[v] = nuevo_vertice
+	grafo.vertices[v] = make([]interface{}, 0)
 }
 
 func (grafo *grafoType) SacarVertice(v interface{}) {
@@ -38,47 +35,64 @@ func (grafo *grafoType) SacarVertice(v interface{}) {
 }
 
 func (grafo *grafoType) AgregarArista(v1 interface{}, v2 interface{}, peso int) bool {
-	vertice1, ok1 := grafo.vertices[v1]
-	vertice2, ok2 := grafo.vertices[v2]
+	arista1, ok1 := grafo.vertices[v1]
+	arista2, ok2 := grafo.vertices[v2]
 	if !ok1 || !ok2 {
 		return false
 	}
-	vertice1.aristas[v2] = peso
+	arista1 = append(arista1, arista{peso: peso, destino: v2})
+	grafo.vertices[v1] = arista1
 	if !grafo.dirigido {
-		vertice2.aristas[v1] = peso
+		arista2 = append(arista2, arista{peso: peso, destino: v1})
+		grafo.vertices[v2] = arista2
 	}
 	return true
 }
 
 func (grafo *grafoType) SacarArista(v1 interface{}, v2 interface{}) {
 	if !grafo.dirigido {
-		delete(grafo.vertices[v2].aristas, v1)
+		aristas2 := grafo.vertices[v2]
+		grafo.vertices[v2] = borrar(aristas2, v1)
 	}
-	delete(grafo.vertices[v1].aristas, v2)
+	aristas1 := grafo.vertices[v1]
+	grafo.vertices[v1] = borrar(aristas1, v2)
 }
 
 func (grafo *grafoType) EstanUnidos(v1 interface{}, v2 interface{}) bool {
-	_, ok1 := grafo.vertices[v1].aristas[v2]
+	aristas1 := grafo.vertices[v1]
+	ok1 := false
+	ok2 := false
 	if grafo.dirigido {
+		for i := range aristas1 {
+			if aristas1[i].(arista).destino == v2 {
+				ok1 = true
+				break
+			}
+		}
 		return ok1
 	}
-	_, ok2 := grafo.vertices[v2].aristas[v1]
-	return ok1 || ok2
+	aristas2 := grafo.vertices[v2]
+	for i := range aristas2 {
+		if aristas2[i].(arista).destino == v1 {
+			ok2 = true
+			break
+		}
+	}
+	return ok2
 }
 
 func (grafo *grafoType) ObtenerVertices() []interface{} {
 	vertices := make([]interface{}, 0, len(grafo.vertices))
-	for _, v := range grafo.vertices {
-		vertices = append(vertices, v.dato)
+	for clave := range grafo.vertices {
+		vertices = append(vertices, clave)
 	}
 	return vertices
 }
 
 func (grafo *grafoType) ObtenerAdyacentes(v interface{}) []interface{} {
-	vertice := grafo.vertices[v]
-	aristas := make([]interface{}, 0, len(vertice.aristas))
-	for arista := range vertice.aristas {
-		aristas = append(aristas, arista)
+	aristas := make([]interface{}, 0)
+	for _, v := range grafo.vertices[v] {
+		aristas = append(aristas, v.(arista).destino)
 	}
 	return aristas
 }
@@ -97,6 +111,27 @@ func (grafo *grafoType) PesoArista(v1 interface{}, v2 interface{}) (int, bool) {
 	if !grafo.EstanUnidos(v1, v2) {
 		return 0, false
 	}
-	peso, ok := grafo.vertices[v1].aristas[v2]
+	peso := 0
+	ok := false
+	aristas := grafo.vertices[v1]
+	for i := range aristas {
+		if aristas[i].(arista).destino == v2 {
+			peso = aristas[i].(arista).peso
+			ok = true
+		}
+	}
 	return peso, ok
+}
+
+//Funcion auxiliar de borrado sobre slices eficiente
+func borrar(aristas []interface{}, destino interface{}) []interface{} {
+	for i := range aristas {
+		if aristas[i] == destino {
+			aristas[i] = aristas[len(aristas)-1] // Se copia el ultimo elemento a la posicion a borrar
+			aristas = aristas[:len(aristas)-1]
+			break
+		}
+
+	}
+	return aristas
 }

@@ -13,4 +13,6 @@ type Biblioteca interface {
 
 	//Devuelve la cantidad de vertices que se encuentran a un rango n del origen
 	Rango(grafo *grafo.Grafo, origen interface{}, n int) int
+
+	Navegacion(grafo *grafo.Grafo, origen interface{}, n int)interface{}
 }

@@ -1,6 +1,7 @@
 package biblioteca
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/algo2/tp3/grafo"
@@ -48,19 +49,24 @@ func TestCaminosMinimosPalabras(t *testing.T) {
 
 func TestPageRank(t *testing.T) {
 	grafo := grafo.Crear(true)
-	vertices := [6]string{"America", "Europa", "Asia", "Oceania", "Africa"}
+	vertices := [6]string{"America del Sur","America del Norte", "Europa", "Asia", "Oceania", "Africa"}
 	for _, data := range vertices {
 		grafo.AgregarVertice(data)
 	}
-	grafo.AgregarArista("America", "Oceania", 0)
-	grafo.AgregarArista("America", "Europa", 0)
+	grafo.AgregarArista("America del Sur", "Oceania", 0)
+	grafo.AgregarArista("America del Sur", "America del Norte", 0)
+	grafo.AgregarArista("America del Norte", "Oceania", 0)
+	grafo.AgregarArista("America del Norte", "Europa", 0)
+	grafo.AgregarArista("America del Norte", "America del Sur", 0)
+	grafo.AgregarArista("America del Norte", "Africa", 0)
+	grafo.AgregarArista("Europa", "America del Sur", 0)
+	grafo.AgregarArista("Europa", "Oceania", 0)
 	grafo.AgregarArista("Asia", "Oceania", 0)
-	grafo.AgregarArista("Oceania", "America", 0)
-	grafo.AgregarArista("Europa", "Africa", 0)
-	grafo.AgregarArista("Africa", "Asia", 0)
+	grafo.AgregarArista("Oceania", "Europa", 0)
 	grafo.AgregarArista("Africa", "Oceania", 0)
-	grafo.AgregarArista("Asia", "America", 0)
 
-	PageRank(&grafo, 2)
+
+	fmt.Println(PageRank(&grafo, 5))
 }
+
 

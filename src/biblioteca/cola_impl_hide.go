@@ -14,6 +14,9 @@ func ColaCrear() Cola {
 }
 
 func (cola *cola) Desencolar() interface{} {
+	if cola.EstaVacia(){
+		return nil
+	}
 	value := cola.list.Front().Value
 	cola.list.Remove(cola.list.Front())
 	return value

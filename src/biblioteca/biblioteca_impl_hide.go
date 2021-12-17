@@ -2,11 +2,13 @@ package biblioteca
 
 import (
 	"container/heap"
-	"fmt"
+	"math"
 
 	"github.com/algo2/tp3/grafo"
 )
 
+//variable para almacenar el pageRank
+var pageRank map[interface{}]float64
 //Struct utilizado para rastrear a que diccionario pertenece el maximo valor en la funcion de diametro
 type padresType struct {
 	padres     *map[interface{}]interface{}
@@ -14,7 +16,7 @@ type padresType struct {
 	vertice    interface{}
 }
 
-//Dado un diccionario de distancias, reconstruye el camino hacia el destino
+//Dado un diccionario de distaasnci, reconstruye el camino hacia el destino
 func reconstruirCamino(padres map[interface{}]interface{}, distancias map[interface{}]int, destino interface{}) []interface{} {
 	solucion := make([]interface{}, 0, distancias[destino])
 	anterior, ok := padres[destino]
@@ -29,8 +31,8 @@ func reconstruirCamino(padres map[interface{}]interface{}, distancias map[interf
 	return solucion
 }
 
-func CaminoMasCorto(grafo *grafo.Grafo, origen interface{}, destino interface{}) ([]interface{}, int) {
-	padres, distancias := bfs(grafo, origen, nil, nil)
+func CaminoMasCorto(grafo *grafo.Grafo, origen, destino interface{}) ([]interface{}, int) {
+	padres, distancias := bfs(grafo, origen)
 	solucion := make([]interface{}, 0, distancias[destino])
 	anterior, ok := padres[destino]
 	if !ok {
@@ -45,28 +47,59 @@ func CaminoMasCorto(grafo *grafo.Grafo, origen interface{}, destino interface{})
 	return solucion, distancias[destino]
 }
 
-func PageRank(grafo *grafo.Grafo, n int) {
-	pr := calcularPageRank(grafo)
+func PageRank(grafo *grafo.Grafo, n int) []interface{} {
+	if pageRank == nil{
+		pageRank = calcularPageRank(grafo)
+	}
+
 	cp := ColaPrioridad{}
 	heap.Init(&cp)
-	for vertice, valor := range pr {
+	for vertice, valor := range pageRank {
 		elem := Elemento{dato: vertice, prioridad: valor}
-		cp.Push(&elem)
+		heap.Push(&cp, &elem)
 	}
 	var top []interface{}
 	for i := 0; i < n; i++ {
-		max := cp.Pop().(*Elemento)
-		top = append(top, *max)
+		if cp.Len() > 0 {
+			max := heap.Pop(&cp).(*Elemento)
+			top = append(top, (*max).dato)
+		}
 	}
-	for _, v := range top {
-		fmt.Println(v)
-	}
-
+	return top
 }
 
 func calcularPageRank(grafo *grafo.Grafo) map[interface{}]float64 {
+	d := 0.85
+	pr := make(map[interface{}]float64)
+	prAnterior := make(map[interface{}]float64)
+	vertices := (*grafo).ObtenerVertices()
+	cantVertices := float64(len(vertices))
+	delta := 1.
 
-	return nil
+	for _, v := range vertices {
+		pr[v] = (1 - d) / cantVertices
+	}
+
+	for delta > 0.01 {
+		for _, v := range vertices {
+			prAnterior[v] = pr[v]
+		}
+		pr = make(map[interface{}]float64)
+
+		for _, v := range vertices {
+			adyacentes := (*grafo).ObtenerAdyacentes(v)
+			for _, ady := range adyacentes {
+				pr[ady] += d * prAnterior[v] / float64(len(adyacentes))
+			}
+		}
+		delta = 0
+		//Convergencia
+		for _, v := range vertices {
+			delta += math.Abs(pr[v] - prAnterior[v])
+		}
+	}
+
+	return pr
 }
 
 func Diametro(grafo *grafo.Grafo) ([]interface{}, int) {
@@ -74,8 +107,8 @@ func Diametro(grafo *grafo.Grafo) ([]interface{}, int) {
 	heap.Init(&cp)
 
 	for _, v := range (*grafo).ObtenerVertices() { //O(V)
-		padres, orden := bfs(grafo, v, nil, nil) //O(V+E))
-		for vertice, distancia := range orden {  //O(V)
+		padres, orden := bfs(grafo, v)          //O(V+E))
+		for vertice, distancia := range orden { //O(V)
 			dato := padresType{padres: &padres, vertice: vertice, distancias: &orden}
 			elem := Elemento{dato: dato, prioridad: float64(distancia)}
 			heap.Push(&cp, &elem) //O(log V)
@@ -88,4 +121,37 @@ func Diametro(grafo *grafo.Grafo) ([]interface{}, int) {
 	solucion := reconstruirCamino(*maxDato.padres, *maxDato.distancias, maxDato.vertice)
 
 	return solucion, max
+}
+
+func Rango(grafo *grafo.Grafo, v interface{}, n int) int {
+	solucion := make([]interface{}, 0)
+	_, orden := bfs(grafo, v)
+	for i := range orden {
+		if orden[i] == n {
+			solucion = append(solucion, orden[i])
+		}
+	}
+	return len(solucion)
+}
+
+func Navegacion(grafo *grafo.Grafo, origen interface{}, n int) []interface{} {
+
+	padres := make(map[interface{}]interface{})
+	orden := make(map[interface{}]int)
+	pasos := 0
+	padres[origen] = nil
+	solucion := navRec(grafo, origen, padres, orden, pasos, n)
+	return reconstruirCamino(padres, orden, solucion)
+}
+
+func navRec(grafo *grafo.Grafo, origen interface{}, padres map[interface{}]interface{}, orden map[interface{}]int, pasos, n int) interface{} {
+	if pasos >= n {
+		return origen
+	}
+	for _, ady := range (*grafo).ObtenerAdyacentes(origen) {
+		padres[ady] = origen
+		orden[ady] = orden[origen] + 1
+		return navRec(grafo, ady, padres, orden, pasos+1, n)
+	}
+	return origen
 }

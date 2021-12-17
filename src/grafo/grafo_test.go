@@ -1,8 +1,11 @@
 package grafo
 
 import (
+	"log"
 	"math/rand"
 	"testing"
+	"time"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -58,8 +61,9 @@ func TestGrafoDirigido(t *testing.T) {
 }
 
 func TestVolumen(t *testing.T) {
-	largo := 1000
-	cantAristas := 400
+	start := time.Now()
+	largo := 10000
+	cantAristas := 4
 	grafo := Crear(false)
 	vertices := make([]int, 0, largo)
 	for i := 0; i < largo; i++ {
@@ -81,4 +85,7 @@ func TestVolumen(t *testing.T) {
 	}
 	require.True(t, ok, "Se deberian poder agregar todas las aristas")
 	require.ElementsMatch(t, vertices, grafo.ObtenerVertices(), "Los vertices deberian coincidir con los agregados")
+
+	elapsed := time.Since(start)
+	log.Printf("volumen tomo %s", elapsed)
 }
