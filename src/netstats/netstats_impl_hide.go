@@ -92,6 +92,8 @@ func (netstat *netstatsType) ejecutar(linea string) {
 		args := strings.SplitN(input[1], ",", 2)
 		n, _ := strconv.Atoi(args[1])
 		netstat.rango(args[0], n)
+	case "navegacion":
+		netstat.navegacion(input[1])
 	}
 }
 
@@ -121,7 +123,21 @@ func (netstat *netstatsType) rango(origen string, n int) {
 	resultado := biblioteca.Rango(&netstat.grafo, origen, n)
 	fmt.Println(resultado)
 }
+
+func (netstat *netstatsType) navegacion(origen string) {
+	resultado:=biblioteca.Navegacion(&netstat.grafo, origen, 20)
+	fmt.Printf("%s\n", salidaFormato2(resultado))
+
+}
+
 func salidaFormato1(solucion []interface{}, costo int) string {
+	var sb strings.Builder
+	sb.WriteString(salidaFormato2(solucion))
+	sb.WriteString(fmt.Sprintf("\nCosto: %d", costo))
+	return sb.String()
+}
+
+func salidaFormato2(solucion []interface{}) string {
 	var sb strings.Builder
 	for i, str := range solucion {
 		sb.WriteString(fmt.Sprintf("%s", str))
@@ -129,6 +145,5 @@ func salidaFormato1(solucion []interface{}, costo int) string {
 			sb.WriteString(" -> ")
 		}
 	}
-	sb.WriteString(fmt.Sprintf("\nCosto: %d", costo))
 	return sb.String()
 }
