@@ -70,3 +70,18 @@ func TestPageRank(t *testing.T) {
 }
 
 
+func TestPila(t *testing.T) {
+	pila:= PilaCrear()
+
+	pila.Apilar(1)
+	pila.Apilar(2)
+	pila.Apilar(3)
+	pila.Apilar(4)
+	pila.Apilar(5)
+	pila.Apilar(6)
+
+	for !pila.EstaVacia(){
+		fmt.Println(pila.Desapilar())
+	}
+
+}

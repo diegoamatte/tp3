@@ -1,3 +1,2 @@
-camino Argentina,Zinedine Zidane
-camino Jeremy Irons,pejerrey
-camino handball,Napoleón Bonaparte
+ciclo Jeremy Irons,4
+ciclo Polonia,20
