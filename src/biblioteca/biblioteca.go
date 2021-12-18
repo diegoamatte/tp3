@@ -15,4 +15,6 @@ type Biblioteca interface {
 	Rango(grafo *grafo.Grafo, origen interface{}, n int) int
 
 	Navegacion(grafo *grafo.Grafo, origen interface{}, n int)interface{}
+
+	Conectividad(grafo *grafo.Grafo, pagina interface{})
 }

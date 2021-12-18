@@ -92,11 +92,13 @@ func (netstat *netstatsType) ejecutar(linea string) {
 		netstat.rango(args[0], n)
 	case "navegacion":
 		netstat.navegacion(input[1])
+	case "conectados":
+		netstat.conectados(input[1])
 	}
 }
 
 func listarOperaciones() {
-	comandos := "camino\nmas_importantes\ndiametro\nrango\nnavegacion"
+	comandos := "camino\nmas_importantes\ndiametro\nrango\nnavegacion\nconectados"
 	fmt.Println(comandos)
 }
 
@@ -128,6 +130,11 @@ func (netstat *netstatsType) navegacion(origen string) {
 	resultado := biblioteca.Navegacion(&netstat.grafo, origen, 20)
 	fmt.Printf("%s\n", salidaFormato2(resultado, " -> "))
 
+}
+
+func (netstat *netstatsType)conectados(pagina string){
+	resultado:=biblioteca.Conectividad(&netstat.grafo,pagina)
+	fmt.Println(salidaFormato2(resultado, ", "))
 }
 
 func salidaFormato1(solucion []interface{}, costo int) string {

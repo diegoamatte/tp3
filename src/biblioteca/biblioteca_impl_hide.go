@@ -9,12 +9,18 @@ import (
 
 //variable para almacenar el pageRank
 var pageRank map[interface{}]float64
+
 //Struct utilizado para rastrear a que diccionario pertenece el maximo valor en la funcion de diametro
 type padresType struct {
 	padres     *map[interface{}]interface{}
 	distancias *map[interface{}]int
 	vertice    interface{}
 }
+
+// utilizado para calculo de CFC
+var ordenCFC = 0
+var visitadosCFC map[interface{}]bool
+var result []interface{}
 
 //Dado un diccionario de distaasnci, reconstruye el camino hacia el destino
 func reconstruirCamino(padres map[interface{}]interface{}, distancias map[interface{}]int, destino interface{}) []interface{} {
@@ -48,7 +54,7 @@ func CaminoMasCorto(grafo *grafo.Grafo, origen, destino interface{}) ([]interfac
 }
 
 func PageRank(grafo *grafo.Grafo, n int) []interface{} {
-	if pageRank == nil{
+	if pageRank == nil {
 		pageRank = calcularPageRank(grafo)
 	}
 
@@ -154,4 +160,54 @@ func navRec(grafo *grafo.Grafo, origen interface{}, padres map[interface{}]inter
 		return navRec(grafo, ady, padres, orden, pasos+1, n)
 	}
 	return origen
+}
+
+func Conectividad(g *grafo.Grafo, pagina interface{}) []interface{} {
+
+	if _, pertenece := visitadosCFC[pagina]; !pertenece {
+		visitadosCFC = make(map[interface{}]bool)
+		pila := PilaCrear()
+		ordenCFC = 0
+		mb := make(map[interface{}]int)
+		orden := make(map[interface{}]int)
+		apilados := make(map[interface{}]bool)
+		result = conectividad(g, pagina, pagina, pila, orden, visitadosCFC, apilados, mb)
+	}
+	return result
+}
+
+func conectividad(g *grafo.Grafo, pagina, buscado interface{}, pila *Pila, orden map[interface{}]int, visitados, apilados map[interface{}]bool, mb map[interface{}]int) []interface{} {
+	visitados[pagina] = true
+	orden[pagina] = ordenCFC
+	mb[pagina] = orden[pagina]
+	ordenCFC += 1
+	(*pila).Apilar(pagina)
+	apilados[pagina] = true
+
+	for _, ady := range (*g).ObtenerAdyacentes(pagina) {
+		if _, ok := visitados[ady]; !ok {
+			conectividad(g, ady, buscado, pila, orden, visitados, apilados, mb)
+		}
+		if _, ok := apilados[ady]; ok {
+			mb[pagina] = int(math.Min(float64(mb[pagina]), float64(mb[ady])))
+
+		}
+	}
+
+	if orden[pagina] == mb[pagina] && !pila.EstaVacia() {
+		cfc := make([]interface{}, 0)
+		var w interface{}
+		for {
+			w = (*pila).Desapilar()
+			delete(apilados, w)
+			cfc = append(cfc, w)
+			if pagina == w {
+				break
+			}
+		}
+		if pagina == buscado {
+			return cfc
+		}
+	}
+	return nil
 }
