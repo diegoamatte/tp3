@@ -98,11 +98,14 @@ func (netstat *netstatsType) ejecutar(linea string) {
 		args := strings.SplitN(input[1], ",", 2)
 		n, _ := strconv.Atoi(args[1])
 		netstat.ciclo(args[0], n)
+	case "lectura":
+		args := strings.Split(input[1], ",")
+		netstat.lectura(args)
 	}
 }
 
 func listarOperaciones() {
-	comandos := "camino\nmas_importantes\ndiametro\nrango\nnavegacion\nconectados"
+	comandos := "camino\nmas_importantes\ndiametro\nrango\nnavegacion\nconectados\nciclo"
 	fmt.Println(comandos)
 }
 
@@ -142,28 +145,24 @@ func (netstat *netstatsType) conectados(pagina string) {
 }
 
 func (netstat *netstatsType) ciclo(pagina string, n int) {
-	resultado:= biblioteca.Ciclo(&netstat.grafo,pagina,n)
-	if resultado == nil{
+	resultado := biblioteca.Ciclo(&netstat.grafo, pagina, n)
+	if resultado == nil {
 		fmt.Println("No se encontro recorrido")
 		return
 	}
-	fmt.Println(salidaFormato2(resultado," -> "))
+	fmt.Println(salidaFormato2(resultado, " -> "))
 }
 
-func salidaFormato1(solucion []interface{}, costo int) string {
-	var sb strings.Builder
-	sb.WriteString(salidaFormato2(solucion, " -> "))
-	sb.WriteString(fmt.Sprintf("\nCosto: %d", costo))
-	return sb.String()
-}
-
-func salidaFormato2(solucion []interface{}, separador string) string {
-	var sb strings.Builder
-	for i, str := range solucion {
-		sb.WriteString(fmt.Sprintf("%s", str))
-		if i < len(solucion)-1 {
-			sb.WriteString(separador)
-		}
+func (netstat *netstatsType) lectura(paginas []string) {
+	//Conversion explicita a tipo interface{}
+	param := make([]interface{}, 0)
+	for i := range paginas {
+		param = append(param, paginas[i])
 	}
-	return sb.String()
+	resultado := biblioteca.Lectura(&netstat.grafo, param)
+	if resultado == nil {
+		fmt.Println("No existe forma de leer las paginas en orden")
+		return
+	}
+	fmt.Println(salidaFormato2(resultado, ", "))
 }
