@@ -98,10 +98,10 @@ func (grafo *grafoType) ObtenerAdyacentes(v interface{}) []interface{} {
 }
 
 func (grafo *grafoType) VerticeAleatorio() (interface{}, bool) {
-	// Seed random
 	if len(grafo.vertices) == 0 {
 		return nil, false
 	}
+	// Seed random
 	rand.Seed(time.Now().UnixNano())
 	indexes := rand.Perm(len(grafo.vertices))
 	return grafo.ObtenerVertices()[indexes[0]], true

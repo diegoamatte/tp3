@@ -1,2 +1,4 @@
-ciclo Jeremy Irons,4
-ciclo Polonia,20
+clustering River Plate
+clustering Club Atlético River Plate
+clustering Juan Domingo Perón
+clustering Ámsterdam

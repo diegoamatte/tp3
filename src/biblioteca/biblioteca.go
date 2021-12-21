@@ -14,9 +14,13 @@ type Biblioteca interface {
 	//Devuelve la cantidad de vertices que se encuentran a un rango n del origen
 	Rango(grafo *grafo.Grafo, origen interface{}, n int) int
 
-	Navegacion(grafo *grafo.Grafo, origen interface{}, n int)interface{}
+	Navegacion(grafo *grafo.Grafo, origen interface{}, n int) interface{}
 
 	Conectividad(grafo *grafo.Grafo, pagina interface{})
 
-	Ciclo(grafo *grafo.Grafo, pagina interface{},n int)[]interface{}
+	Ciclo(grafo *grafo.Grafo, pagina interface{}, n int) []interface{}
+
+	Lectura(grafo *grafo.Grafo, paginas []interface{}) []interface{}
+
+	Clustering(grafo *grafo.Grafo, pagina interface{}) float64
 }

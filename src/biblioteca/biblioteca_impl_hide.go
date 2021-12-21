@@ -38,7 +38,7 @@ func reconstruirCamino(padres map[interface{}]interface{}, distancias map[interf
 }
 
 func CaminoMasCorto(grafo *grafo.Grafo, origen, destino interface{}) ([]interface{}, int) {
-	padres, distancias := bfs(grafo, origen)
+	padres, distancias := bfs(grafo, origen, nil, nil)
 	solucion := make([]interface{}, 0, distancias[destino])
 	anterior, ok := padres[destino]
 	if !ok {
@@ -113,8 +113,8 @@ func Diametro(grafo *grafo.Grafo) ([]interface{}, int) {
 	heap.Init(&cp)
 
 	for _, v := range (*grafo).ObtenerVertices() { //O(V)
-		padres, orden := bfs(grafo, v)          //O(V+E))
-		for vertice, distancia := range orden { //O(V)
+		padres, orden := bfs(grafo, v, nil, nil) //O(V+E))
+		for vertice, distancia := range orden {  //O(V)
 			dato := padresType{padres: &padres, vertice: vertice, distancias: &orden}
 			elem := Elemento{dato: dato, prioridad: float64(distancia)}
 			heap.Push(&cp, &elem) //O(log V)
@@ -131,7 +131,7 @@ func Diametro(grafo *grafo.Grafo) ([]interface{}, int) {
 
 func Rango(grafo *grafo.Grafo, v interface{}, n int) int {
 	solucion := make([]interface{}, 0)
-	_, orden := bfs(grafo, v)
+	_, orden := bfs(grafo, v, nil, nil)
 	for i := range orden {
 		if orden[i] == n {
 			solucion = append(solucion, orden[i])
@@ -251,4 +251,90 @@ func ciclo(g *grafo.Grafo, v, origen interface{}, n, pasos int, visitados map[in
 	*camino = (*camino)[:len(*camino)-1]
 	delete(visitados, v)
 	return false
+}
+
+func Lectura(g *grafo.Grafo, paginas []interface{}) []interface{} {
+	gSal := gradosSalida(g, paginas)
+	cola := ColaCrear()
+	resultado := make([]interface{}, 0)
+
+	for _, v := range paginas {
+		if gSal[v] == 0 {
+			cola.Encolar(v)
+		}
+	}
+
+	for !cola.EstaVacia() {
+		v := cola.Desencolar()
+		resultado = append(resultado, v)
+		for ady := range gSal {
+			gSal[ady] -= 1
+			if gSal[ady] == 0 {
+				cola.Encolar(ady)
+			}
+		}
+	}
+
+	if len(resultado) == 0 {
+		return nil
+	}
+	return resultado
+}
+
+func gradosSalida(g *grafo.Grafo, vertices []interface{}) map[interface{}]int {
+	grados := make(map[interface{}]int)
+	verticesMap := make(map[interface{}]bool)
+
+	for i := range vertices {
+		verticesMap[vertices[i]] = true
+		grados[vertices[i]] = 0
+	}
+
+	for j := range vertices {
+		for _, ady := range (*g).ObtenerAdyacentes(vertices[j]) {
+			if _, pertenece := verticesMap[ady]; pertenece {
+				grados[vertices[j]] += 1
+			}
+		}
+	}
+
+	return grados
+}
+
+func Clustering(g *grafo.Grafo, v interface{}) float64 {
+	if v != nil {
+		return clustering(g, v)
+	}
+	suma := 0.
+	vertices := (*g).ObtenerVertices()
+	for _, v := range vertices {
+		suma += clustering(g, v)
+	}
+	return suma / float64(len(vertices))
+}
+
+func clustering(g *grafo.Grafo, v interface{}) float64 {
+	clustering := make(map[interface{}]float64)
+	adyacentes := (*g).ObtenerAdyacentes(v)
+
+	k := float64(len(adyacentes))
+	ady := 0.
+
+	for _, w := range adyacentes { //Adyacentes a v
+		if w != v {
+			for _, y := range (*g).ObtenerAdyacentes(w) { //Adyacentes al adyacente
+				if (*g).EstanUnidos(v, y) && v != y && w != y {
+					ady += 1
+				}
+			}
+		}
+	}
+
+	if k < 2 {
+		clustering[v] = 0.
+	} else {
+		clustering[v] = ady / (k * (k - 1))
+	}
+
+	return clustering[v]
 }

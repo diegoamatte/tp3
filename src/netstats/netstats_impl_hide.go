@@ -101,11 +101,17 @@ func (netstat *netstatsType) ejecutar(linea string) {
 	case "lectura":
 		args := strings.Split(input[1], ",")
 		netstat.lectura(args)
+	case "clustering":
+		if len(input) == 2{
+			netstat.clustering(input[1])
+		}else{
+			netstat.clustering("")
+		}
 	}
 }
 
 func listarOperaciones() {
-	comandos := "camino\nmas_importantes\ndiametro\nrango\nnavegacion\nconectados\nciclo"
+	comandos := "camino\nmas_importantes\ndiametro\nrango\nnavegacion\nconectados\nciclo\nlectura\nclustering"
 	fmt.Println(comandos)
 }
 
@@ -165,4 +171,15 @@ func (netstat *netstatsType) lectura(paginas []string) {
 		return
 	}
 	fmt.Println(salidaFormato2(resultado, ", "))
+}
+
+func (netstat *netstatsType) clustering(pagina string) {
+	var result float64
+	if pagina ==""{
+		result = biblioteca.Clustering(&netstat.grafo,nil)
+	}else{
+		result = biblioteca.Clustering(&netstat.grafo,pagina)
+	}
+	
+	fmt.Println(strconv.FormatFloat(result, 'f', 3, 64))
 }
